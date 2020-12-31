@@ -1,27 +1,9 @@
 #include <iostream>
 #include "PracticalSocket.h"
-#include <thread>
 #include "udpmulticaster.h"
 using namespace std;
 
-udpmulticaster themulticaster;
 
-void handleConnection(TCPSocket* sock, string topic){
-   char* buffer = new char[500];
-   while(true){
-       int n = sock->recvFully(buffer, 2);
-       if (n == 0) break;
-       int len = buffer[0] + (buffer[1] << 8);
-       n = sock->recvFully(buffer + 2, len);
-       if (n == 0) break;
-       themulticaster.send(buffer, len + 2, topic);
-	   buffer[len+2] = '\0';
-	   cout << buffer+2 << endl;
-   }
-   themulticaster.unsubscribe(sock, topic);
-   delete buffer;
-   delete sock;
-}
 
 
 int main(int argc, char *argv[]) {
@@ -29,16 +11,20 @@ int main(int argc, char *argv[]) {
 		cout << "missing arguments:  pubsubserver <ipadres> <port> "  << endl;
 		return -1;
 	}
-	const string adres = argv[1];
+	const char* adres = argv[1];
 	string portstring = argv[2];
 	int port = stoi(portstring);
 	try {
-		SocketAdress localadr (adres, port, SocketAdress::UDP_SOCKET);
+		
+		SocketAddress localadr (adres, port, SocketAddress::UDP_SOCKET);
 		UDPSocket sock;
 		sock.bind(localadr);
+		udpmulticaster themulticaster(sock);
+		
+		
 		cout << " waiting...." << endl;
 		char buffer[128];
-		SocketAdress remoteadr;
+		SocketAddress remoteadr;
  
   
 		for (;;) {                          

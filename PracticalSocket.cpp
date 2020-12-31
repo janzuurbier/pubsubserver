@@ -53,7 +53,7 @@ SocketTimedOutException::SocketTimedOutException(const string &message) throw() 
 
 static addrinfo *getAddressInfo(const char *host, const char *service,
                                SocketAddress::AddressType atype)
-  throw(SocketException) {
+  noexcept(false) {
   // Create criteria for the socket we require.
   addrinfo addrCriteria;
   memset(&addrCriteria, 0, sizeof(addrCriteria)); // Zero out structure
@@ -89,7 +89,7 @@ static addrinfo *getAddressInfo(const char *host, const char *service,
 
 SocketAddress::SocketAddress(const char *host, const char *service,
                              AddressType atype)
-  throw(SocketException) {
+  noexcept(false) {
   addrinfo *servAddrs = getAddressInfo(host, service, atype);
 
   // Extract just the first address.
@@ -104,7 +104,7 @@ SocketAddress::SocketAddress(const char *host, const char *service,
 
 SocketAddress::SocketAddress(const char *host, in_port_t port,
                              AddressType atype)
-  throw(SocketException) {
+  noexcept(false) {
   // Convert the numeric port request into a string.
   char service[6];
   snprintf(service, sizeof(service), "%d", port);
@@ -125,7 +125,7 @@ SocketAddress::SocketAddress(sockaddr *addrVal, socklen_t addrLenVal) {
   memcpy( &addr, addrVal, addrLen );
 }
 
-string SocketAddress::getAddress() const throw(SocketException) {
+string SocketAddress::getAddress() const noexcept(false) {
   void *numericAddress;
 
   switch (((sockaddr *)&addr)->sa_family) {
@@ -148,7 +148,7 @@ string SocketAddress::getAddress() const throw(SocketException) {
   return addrBuffer;
 }
 
-in_port_t SocketAddress::getPort() const throw(SocketException) {
+in_port_t SocketAddress::getPort() const noexcept(false) {
   switch (((sockaddr *)&addr)->sa_family) {
   case AF_INET:
     return ntohs(((sockaddr_in *)&addr)->sin_port);
@@ -164,7 +164,7 @@ in_port_t SocketAddress::getPort() const throw(SocketException) {
 vector<SocketAddress> SocketAddress::lookupAddresses(const char *host,
                                                         const char *service,
                                                         AddressType atype)
-  throw(SocketException) {
+  noexcept(false) {
   addrinfo *servAddrs = getAddressInfo(host, service, atype);
 
   // Push a copy of each address onto our list.
@@ -182,7 +182,7 @@ vector<SocketAddress> SocketAddress::lookupAddresses(const char *host,
 vector<SocketAddress> SocketAddress::lookupAddresses(const char *host,
                                                         in_port_t port,
                                                         AddressType atype)
-  throw(SocketException) {
+  noexcept(false) {
   // Convert the numeric port request into a string.
   char service[6];
   snprintf(service, sizeof(service), "%d", port);
@@ -228,7 +228,7 @@ Socket::~Socket() {
   }
 }
 
-void Socket::cleanUp() throw(SocketException) {
+void Socket::cleanUp() noexcept(false) {
 #ifdef WIN32
   if (WSACleanup() != 0) {
     throw SocketException("WSACleanup() failed", "Unable to clean up Winsock DLL");
@@ -236,7 +236,7 @@ void Socket::cleanUp() throw(SocketException) {
 #endif
 }
 
-SocketAddress Socket::getLocalAddress() throw(SocketException) {
+SocketAddress Socket::getLocalAddress() noexcept(false) {
   sockaddr_storage addr;
   socklen_t addrLen = sizeof(addr);
 
@@ -258,7 +258,7 @@ void Socket::close() {
 }
 
 void Socket::createSocket(const SocketAddress &address, int type,
-                          int protocol) throw(SocketException) {
+                          int protocol) noexcept(false) {
   // Destroy the old socket if there was one.
   if (sockDesc >= 0)
     close();
@@ -280,14 +280,14 @@ void Socket::createSocket(const SocketAddress &address, int type,
 ///////////////////////////////////////////////////////////////////////////////
 
 void CommunicatingSocket::send(const void *buffer, int bufferLen)
-  throw(SocketException) {
+  noexcept(false) {
   if (::send(sockDesc, (raw_type *)buffer, bufferLen, 0) < 0) {
     throw SocketException("Send failed (send())");
   }
 }
 
 size_t CommunicatingSocket::recv(void *buffer, int bufferLen)
-  throw(SocketException) {
+  noexcept(false) {
   int rtn = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0);
   if (rtn < 0) {
     throw SocketException("Receive failed (recv())");
@@ -297,7 +297,7 @@ size_t CommunicatingSocket::recv(void *buffer, int bufferLen)
 }
 
 size_t CommunicatingSocket::recvFully(void *buffer, int bufferLen)
-  throw(SocketException) {
+  noexcept(false) {
   int rcount = 0;
   int len = ::recv(sockDesc, (raw_type *) buffer, bufferLen, 0);
   while (len > 0 && rcount + len < bufferLen) {
@@ -313,7 +313,7 @@ size_t CommunicatingSocket::recvFully(void *buffer, int bufferLen)
 }
 
 
-SocketAddress CommunicatingSocket::getForeignAddress() throw(SocketException) {
+SocketAddress CommunicatingSocket::getForeignAddress() noexcept(false) {
   sockaddr_storage addr;
   socklen_t addrLen = sizeof(addr);
 
@@ -411,7 +411,7 @@ TCPSocket::~TCPSocket() {
 
 TCPSocket::TCPSocket(const char *foreignAddress,
                      in_port_t foreignPort)
-  throw(SocketException) {
+  noexcept(false) {
   myStream = NULL;
   sockDesc = -1;
 
@@ -460,7 +460,7 @@ TCPSocket::TCPSocket(int desc) {
   sockDesc = desc;
 }
 
-void TCPSocket::bind(const SocketAddress &localAddress) throw(SocketException) {
+void TCPSocket::bind(const SocketAddress &localAddress) noexcept(false) {
   createSocket(localAddress, SOCK_STREAM, IPPROTO_TCP);
 
   if (::bind(sockDesc, localAddress.getSockaddr(),
@@ -470,7 +470,7 @@ void TCPSocket::bind(const SocketAddress &localAddress) throw(SocketException) {
 }
 
 void TCPSocket::connect(const SocketAddress &foreignAddress)
-  throw(SocketException) {
+  noexcept(false) {
   if (sockDesc < 0)
     createSocket(foreignAddress, SOCK_STREAM, IPPROTO_TCP);
 
@@ -480,7 +480,7 @@ void TCPSocket::connect(const SocketAddress &foreignAddress)
                           strerror(errno));
 }
 
-iostream &TCPSocket::getStream() throw(SocketException) {
+iostream &TCPSocket::getStream() noexcept(false) {
   if (myStream == NULL) {
     myStreambuf = new SocketStreamBuffer<char>(this);
     myStream = new iostream(myStreambuf);
@@ -531,7 +531,7 @@ TCPServerSocket::TCPServerSocket() {
 }
 
 TCPServerSocket::TCPServerSocket(in_port_t localPort, int queueLen)
-  throw(SocketException) {
+  noexcept(false) {
   char buffer[ 1024 ];
   snprintf(buffer, sizeof(buffer), "%d", localPort);
   sockDesc = findTCPServerSocketDesc(NULL, buffer);
@@ -539,7 +539,7 @@ TCPServerSocket::TCPServerSocket(in_port_t localPort, int queueLen)
 }
 
 void TCPServerSocket::bind(const SocketAddress &localAddress)
-  throw(SocketException) {
+  noexcept(false) {
   createSocket(localAddress, SOCK_STREAM, IPPROTO_TCP);
 
   if (::bind(sockDesc, localAddress.getSockaddr(),
@@ -551,7 +551,7 @@ void TCPServerSocket::bind(const SocketAddress &localAddress)
   setListen(5);
 }
 
-TCPSocket *TCPServerSocket::accept() throw(SocketException) {
+TCPSocket *TCPServerSocket::accept() noexcept(false) {
   int newConnSD;
   if ((newConnSD =:: accept(sockDesc, NULL, 0)) < 0) {
     throw SocketException("Accept failed (accept())");
@@ -560,7 +560,7 @@ TCPSocket *TCPServerSocket::accept() throw(SocketException) {
   return new TCPSocket(newConnSD);
 }
 
-void TCPServerSocket::setListen(int queueLen) throw(SocketException) {
+void TCPServerSocket::setListen(int queueLen) noexcept(false) {
   if (listen(sockDesc, queueLen) < 0) {
     throw SocketException("Set listening socket failed (listen())");
   }
@@ -570,12 +570,12 @@ void TCPServerSocket::setListen(int queueLen) throw(SocketException) {
 // UDPSocket
 ///////////////////////////////////////////////////////////////////////////////
 
-UDPSocket::UDPSocket() throw (SocketException): timeOutPeriod(0) {
+UDPSocket::UDPSocket() noexcept(false) : timeOutPeriod(0) {
 	SocketAddress adr("0.0.0.0", (const char*) NULL, SocketAddress::UDP_SOCKET);
 	createSocket(adr, SOCK_DGRAM, IPPROTO_UDP);
 }
 
-void UDPSocket::setBroadcast() throw(SocketException)  {
+void UDPSocket::setBroadcast() noexcept(false)  {
   // If this fails, we'll hear about it when we try to send.  This will allow
   // system that cannot broadcast to continue if they don't plan to broadcast
   int broadcastPermission = 1;
@@ -585,14 +585,14 @@ void UDPSocket::setBroadcast() throw(SocketException)  {
 }
 
 void UDPSocket::bind(const SocketAddress &localAddress)
-  throw(SocketException) {
+  noexcept(false) {
   createSocket(localAddress, SOCK_DGRAM, IPPROTO_UDP);
   int n = ::bind(sockDesc, localAddress.getSockaddr(), localAddress.getSockaddrLen());
   if (n < 0) throw SocketException("can not perform bind");
 }
 
 void UDPSocket::connect(const SocketAddress &foreignAddress)
-  throw(SocketException) {
+  noexcept(false) {
   if (sockDesc < 0)
     createSocket(foreignAddress, SOCK_DGRAM, IPPROTO_UDP);
 
@@ -602,7 +602,7 @@ void UDPSocket::connect(const SocketAddress &foreignAddress)
                           strerror(errno));
 }
 
-void UDPSocket::disconnect() throw(SocketException) {
+void UDPSocket::disconnect() noexcept(false) {
   sockaddr_in nullAddr;
   memset(&nullAddr, 0, sizeof(nullAddr));
   nullAddr.sin_family = AF_UNSPEC;
@@ -621,7 +621,7 @@ void UDPSocket::disconnect() throw(SocketException) {
 
 void UDPSocket::sendTo(const void *buffer, int bufferLen,
                        const SocketAddress &foreignAddress)
-  throw(SocketException) {
+  noexcept(false) {
   // Write out the whole buffer as a single message.
   if (sendto(sockDesc, (raw_type *) buffer, bufferLen, 0,
              foreignAddress.getSockaddr(),
@@ -632,7 +632,7 @@ void UDPSocket::sendTo(const void *buffer, int bufferLen,
 
 int UDPSocket::recvFrom(void *buffer, int bufferLen,
                         SocketAddress &sourceAddress)
-  throw(SocketException) {
+  noexcept(false) {
   sockaddr_storage clntAddr;
   socklen_t addrLen = sizeof(clntAddr);
   //added
@@ -652,14 +652,14 @@ int UDPSocket::recvFrom(void *buffer, int bufferLen,
 }
 
 void UDPSocket::setMulticastTTL(unsigned char multicastTTL)
-  throw(SocketException) {
+  noexcept(false) {
   if (setsockopt(sockDesc, IPPROTO_IP, IP_MULTICAST_TTL,
                  (raw_type *) &multicastTTL, sizeof(multicastTTL)) < 0) {
     throw SocketException("Multicast TTL set failed (setsockopt())");
   }
 }
 
- void UDPSocket::setMulticastLoop(bool loop) throw(SocketException) {
+ void UDPSocket::setMulticastLoop(bool loop) noexcept(false) {
 	 int multicastLoop = (loop ) ? 1 : 0;
 	 if (setsockopt(sockDesc, IPPROTO_IP, IP_MULTICAST_LOOP,
                  (raw_type *) &multicastLoop, sizeof(multicastLoop)) < 0) {
@@ -673,7 +673,7 @@ void UDPSocket::setMulticastTTL(unsigned char multicastTTL)
  }
 
  //added
- void UDPSocket::setTimeOut(int sec) throw (SocketException) {
+ void UDPSocket::setTimeOut(int sec) noexcept(false) {
 	// Set signal handler for alarm signal
   struct sigaction handler; // Signal handler
   handler.sa_handler = CatchAlarm;
@@ -685,7 +685,7 @@ void UDPSocket::setMulticastTTL(unsigned char multicastTTL)
 	timeOutPeriod = sec;
  }
 
- void UDPSocket::joinGroup(const string &multicastGroup) throw(SocketException) {
+ void UDPSocket::joinGroup(const string &multicastGroup) noexcept(false) {
    struct ip_mreq multicastRequest;
 
    multicastRequest.imr_multiaddr.s_addr = inet_addr(multicastGroup.c_str());
@@ -696,7 +696,7 @@ void UDPSocket::setMulticastTTL(unsigned char multicastTTL)
    }
  }
 
- void UDPSocket::leaveGroup(const string &multicastGroup) throw(SocketException) {
+ void UDPSocket::leaveGroup(const string &multicastGroup) noexcept(false) {
    struct ip_mreq multicastRequest;
 
    multicastRequest.imr_multiaddr.s_addr = inet_addr(multicastGroup.c_str());

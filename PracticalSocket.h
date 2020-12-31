@@ -92,11 +92,11 @@ public:
   
   /** Make a SocketAddress for the given host and service. */
   SocketAddress(const char *host, const char *service,
-                AddressType atype = TCP_SOCKET) throw(SocketException);
+                AddressType atype = TCP_SOCKET) noexcept(false);
 
   /** Make a SocketAddress for the given host and port number. */
   SocketAddress(const char *host, in_port_t port,
-                AddressType atype = TCP_SOCKET) throw(SocketException);
+                AddressType atype = TCP_SOCKET) noexcept(false);
 
   /** Make a SocketAddress that wraps a copy of the given sockaddr
       structure of the given addreLenVal legth in bytes.  If used as a
@@ -107,10 +107,10 @@ public:
 
   /** Return a string representation of the address portion of this
       object. */
-  std::string getAddress() const throw(SocketException);
+  std::string getAddress() const noexcept(false);
 
   /** Return a numeric value for the port portion of this object. */
-  in_port_t getPort() const throw(SocketException);
+  in_port_t getPort() const noexcept(false);
 
   /** Return a pointer to the sockaddr structure wrapped by this object. */
   sockaddr *getSockaddr() const {
@@ -127,14 +127,14 @@ public:
       The returned list of addresses may be empty. */
   static std::vector<SocketAddress> 
     lookupAddresses(const char *host, const char *service,
-                    AddressType atype = TCP_SOCKET) throw(SocketException);
+                    AddressType atype = TCP_SOCKET) noexcept(false);
 
   /** Return a list of all matching addresses for the given host and
       port.  Either, but not both of host and service can be null (or
       zero).  The returned list of addresses may be empty. */
   static std::vector<SocketAddress> 
     lookupAddresses(const char *host, in_port_t port,
-                    AddressType atype = TCP_SOCKET) throw(SocketException);
+                    AddressType atype = TCP_SOCKET) noexcept(false);
 
 private:
   // Raw address portion of this object.
@@ -153,7 +153,7 @@ public:
    *   @return local address of socket
    *   @exception SocketException thrown if fetch fails
    */
-  SocketAddress getLocalAddress() throw(SocketException);
+  SocketAddress getLocalAddress() noexcept(false);
 
   /** Close this socket. */
   void close();
@@ -171,7 +171,7 @@ public:
    *   @return number of bytes read, 0 for EOF, and -1 for error
    *   @exception SocketException thrown WinSock clean up fails
    */
-  static void cleanUp() throw(SocketException);
+  static void cleanUp() noexcept(false);
 
 private:
   // Prevent the user from trying to use value semantics on this object
@@ -187,7 +187,7 @@ protected:
   Socket();
 
   void createSocket(const SocketAddress &address, int type,
-                    int protocol) throw(SocketException);
+                    int protocol) noexcept(false);
 };
 
 /**
@@ -204,7 +204,7 @@ public:
    *   @param bufferLen number of bytes from buffer to be written
    *   @exception SocketException thrown if unable to send data
    */
-  void send(const void *buffer, int bufferLen) throw(SocketException);
+  void send(const void *buffer, int bufferLen) noexcept(false);
 
   /**
    *   Read into the given buffer up to bufferLen bytes data from this
@@ -214,7 +214,7 @@ public:
    *   @return number of bytes read, 0 for EOF.
    *   @exception SocketException thrown if unable to receive data
    */
-  size_t recv(void *buffer, int bufferLen) throw(SocketException);
+  size_t recv(void *buffer, int bufferLen) noexcept(false);
 
   /**
    *   Block until bufferLen bytes are read into the given buffer,
@@ -225,7 +225,7 @@ public:
    *   @return number of bytes read, 0 for EOF, and -1 for error
    *   @exception SocketException thrown if unable to receive data
    */
-  size_t recvFully(void *buffer, int bufferLen) throw(SocketException);
+  size_t recvFully(void *buffer, int bufferLen) noexcept(false);
 
   /**
    *   Get the address of the peer to which this socket is connected.
@@ -233,7 +233,7 @@ public:
    *   @return foreign address
    *   @exception SocketException thrown if unable to fetch foreign address
    */
-  SocketAddress getForeignAddress() throw(SocketException);
+  SocketAddress getForeignAddress() noexcept(false);
 };
 
 /**
@@ -258,17 +258,17 @@ public:
    *   @exception SocketException thrown if unable to create TCP socket
    */
   TCPSocket(const char *foreignAddress, in_port_t foreignPort) 
-    throw(SocketException);
+    noexcept(false);
 
   /**
      Bind this socket to the given local address.
    */
-  void bind(const SocketAddress &localAddress) throw(SocketException);
+  void bind(const SocketAddress &localAddress) noexcept(false);
   
   /**
      Connect this socket to the given foreign address.
    */
-  void connect(const SocketAddress &foreignAddress) throw(SocketException);
+  void connect(const SocketAddress &foreignAddress) noexcept(false);
 
   /**
    *   Return a reference to an I/O stream wrapper around this
@@ -277,7 +277,7 @@ public:
    *   stream is owned by the socket and is created on the first call
    *   to getStream.
    */
-  std::iostream &getStream() throw(SocketException);
+  std::iostream &getStream() noexcept(false);
 
 private:
   // Access for TCPServerSocket::accept() connection creation
@@ -312,22 +312,22 @@ public:
    *   @exception SocketException thrown if unable to create TCP server socket
    */
   TCPServerSocket(in_port_t localPort, int queueLen = 5) 
-      throw(SocketException);
+      noexcept(false);
 
   /**
      Bind this socket to the given local address.
    */
-  void bind(const SocketAddress &localAddress) throw(SocketException);
+  void bind(const SocketAddress &localAddress) noexcept(false);
   
   /**
    *   Blocks until a new connection is established on this socket or error
    *   @return new connection socket
    *   @exception SocketException thrown if attempt to accept a new connection fails
    */
-  TCPSocket *accept() throw(SocketException);
+  TCPSocket *accept() noexcept(false);
 
 private:
-  void setListen(int queueLen) throw(SocketException);
+  void setListen(int queueLen) noexcept(false);
 };
 
 /**
@@ -339,18 +339,18 @@ public:
    *   Construct a UDP socket
    *   @exception SocketException thrown if unable to create UDP socket
    */
-  UDPSocket()  throw(SocketException) ;
+  UDPSocket()  noexcept(false) ;
 
-  void bind(const SocketAddress &localAddress) throw(SocketException);
+  void bind(const SocketAddress &localAddress) noexcept(false);
 
-  void connect(const SocketAddress &foreignAddress) throw(SocketException);
+  void connect(const SocketAddress &foreignAddress) noexcept(false);
 
   /**
    *   Unset foreign address and port
    *   @return true if disassociation is successful
    *   @exception SocketException thrown if unable to disconnect UDP socket
    */
-  void disconnect() throw(SocketException);
+  void disconnect() noexcept(false);
 
   /**
    *   Send the given buffer as a UDP datagram to the
@@ -361,7 +361,7 @@ public:
    *   @exception SocketException thrown if unable to send datagram
    */
   void sendTo(const void *buffer, int bufferLen,
-              const SocketAddress &foreignAddress) throw(SocketException);
+              const SocketAddress &foreignAddress) noexcept(false);
 
   /**
    *   Read read up to bufferLen bytes data from this socket.  The given buffer
@@ -375,48 +375,48 @@ public:
    *   @exception SocketTimedOutException thrown after time out period has elapsed
    */
   int recvFrom(void *buffer, int bufferLen, 
-               SocketAddress &sourceAddress) throw(SocketException);
+               SocketAddress &sourceAddress) noexcept(false);
 
   /**
    *   Set the multicast TTL
    *   @param multicastTTL multicast TTL
    *   @exception SocketException thrown if unable to set TTL
    */
-  void setMulticastTTL(unsigned char multicastTTL) throw(SocketException);
+  void setMulticastTTL(unsigned char multicastTTL) noexcept(false);
 
   /**
    *   Join the specified multicast group
    *   @param multicastGroup multicast group address to join
    *   @exception SocketException thrown if unable to join group
    */
-  void joinGroup(const std::string &multicastGroup) throw(SocketException);
+  void joinGroup(const std::string &multicastGroup) noexcept(false);
 
   /**
    *   Leave the specified multicast group
    *   @param multicastGroup multicast group address to leave
    *   @exception SocketException thrown if unable to leave group
    */
-  void leaveGroup(const std::string &multicastGroup) throw(SocketException);
+  void leaveGroup(const std::string &multicastGroup) noexcept(false);
 
   /**
    *   Allow the socket to send broadcast
    *   @exception SocketException thrown if unable to set broadcast allowance
    */
-  void setBroadcast()throw(SocketException);
+  void setBroadcast()noexcept(false);
 
   /**
    *   Enables  or disables the socket to recieve the multicast packets it sends.
    * 	@param loop true means enabling, false disabling
    *   @exception SocketException thrown if unable to set broadcast allowance
    */  
-  void setMulticastLoop(bool loop) throw(SocketException);
+  void setMulticastLoop(bool loop) noexcept(false);
   
   /**
    *   Set time out period, i.e. the maximum amount of time method recvFrom wil wait.
    * 	@param time recvFrom wil wait in sec.
    *   @exception SocketException thrown if unable to set time out.
    */ 
-  void setTimeOut(int sec) throw (SocketException);
+  void setTimeOut(int sec) noexcept(false);
   
 private:
   int timeOutPeriod;

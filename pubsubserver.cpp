@@ -48,15 +48,15 @@ int main(int argc, char *argv[]) {
 			
 			if(type == "subscribe"){
 				themulticaster.subscribe(remoteadr, topic);
-				cout << "SUBSCRIBE: " << remoteadr.getAddress() << " TOPIC: "  << topic << endl;
+				cout << "SUBSCRIBE: " << remoteadr.getAddress() << ":" << remoteadr.getPort() << " TOPIC: "  << topic << endl;
 			}
 			else if(type == "unsubscribe"){
 				themulticaster.unsubscribe(remoteadr, topic);
-				cout << "UNSUBSCRIBE: " << remoteadr.getAddress() << " TOPIC: "  << topic << endl;
+				cout << "UNSUBSCRIBE: " << remoteadr.getAddress() << ":" << remoteadr.getPort() << " TOPIC: "  << topic << endl;
 			}
 			else if (type == "publish"){
 				themulticaster.send(p, n - (buffer - p), topic);
-				cout << "PUBLISH: " << remoteadr.getAddress() << " TOPIC: "  << topic << " MESSAGE: " << p << endl;
+				cout << "PUBLISH: " << remoteadr.getAddress() << ":" << remoteadr.getPort() << " TOPIC: "  << topic << " MESSAGE: " << p << endl;
 			
 			}
 		}
